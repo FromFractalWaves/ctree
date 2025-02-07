@@ -1,0 +1,14 @@
+#~/.ctreeconf
+
+[flags]
+1 = tsx, ts
+2 = tsx, ts, json
+3 = tsx, ts, prisma, json, js
+4 = json, ts
+5 = json
+6 = txt, md
+7 = py, md, txt
+8 = py
+9 = tsx, ts, json, prisma
+10 = txt, md
+
