@@ -2,7 +2,25 @@
 
 CTree is a CLI tool designed to keep modular codebases manageable, especially when working with AI-assisted development. It allows you to extract relevant portions of code efficiently while maintaining the modular structure of your project.
 
+Unlike typical AI automation tools, CTree is **a human-centric augmentation tool**—it helps **you** structure and extract code efficiently, rather than replacing human decision-making.
+
 I built CTree using **o1-mini** to push beyond my current skill level, leveraging modular development to scale effectively.
+
+## Why CTree?
+
+Most AI tools focus on **automating tasks** and **replacing human decision-making.** But that approach has a serious flaw:
+
+- 🚫 **AI doesn’t always know what you want**
+- 🚫 **AI is unpredictable without good structure**
+- 🚫 **AI-generated outputs can be inconsistent**
+
+That’s where **CTree** comes in. It bridges the gap between human intuition and AI execution by giving you a structured way to:
+
+✅ Organize **complex ideas** before sending them to AI  
+✅ Generate **clear, structured outputs** that AI tools can follow  
+✅ Take advantage of **AI’s capabilities without losing control**  
+
+Instead of fighting against AI’s quirks, CTree **works with them**, making it easier for you to **guide AI into producing better results.**
 
 ## Installation
 
@@ -123,12 +141,19 @@ ctree -vv -F yaml toml -o config app
 ctree -vv -a -L /path/to/custom_ignore.txt
 ```
 
-## Why Use CTree?
+## Who is CTree For?
 
-- Helps manage modular projects by focusing on specific code sections.
-- Makes working with AI-assisted coding more efficient by structuring code extraction.
-- Keeps your workspace clean when navigating large codebases.
-- Allows fine-grained control over extracted content using numeric flags.
+- **AI developers** who want more structured control over AI outputs  
+- **Researchers & engineers** working with complex, multi-layered ideas  
+- **Anyone using AI tools like O1-Mini** who wants **more consistency and control**  
 
-More functionality and features will be added as development progresses!
+If you’ve ever been frustrated by **AI’s unpredictability**, CTree is the missing piece that helps you **take charge of the interaction.**
+
+## Final Thoughts
+
+CTree flips the usual AI workflow on its head. **Instead of AI doing everything, it helps *you* work smarter with AI.**
+
+Rather than treating AI as an **autonomous worker**, CTree treats AI as a **tool that needs proper input to function effectively.** That makes it one of the first **human-first AI augmentation tools**—built to **empower, not replace.**
+
+🚀 **Take control of your AI interactions with CTree.**
 
