@@ -1,54 +1,49 @@
-# CTree
+# **CTree**  
 
-CTree is a CLI tool designed to keep modular codebases manageable, especially when working with AI-assisted development. It allows you to extract relevant portions of code efficiently while maintaining the modular structure of your project.
+CTree is a **CLI tool** designed to keep modular codebases manageable, especially in **AI-assisted development**. Instead of letting AI **dictate your workflow**, CTree helps **you** structure and extract code efficiently—giving you more **control and consistency.**  
 
-Unlike typical AI automation tools, CTree is **a human-centric augmentation tool**—it helps **you** structure and extract code efficiently, rather than replacing human decision-making.
+Unlike typical AI automation tools, **CTree is human-first.** It’s not here to replace decision-making—it’s here to **enhance it.**  
 
-I built CTree using **o1-mini** to push beyond my current skill level, leveraging modular development to scale effectively.
+I built CTree using **O1-Mini** to push beyond my current skill level, leveraging modular development to scale effectively.  
 
-## Why CTree?
+---
 
-Most AI tools focus on **automating tasks** and **replacing human decision-making.** But that approach has a serious flaw:
+## **🚀 Why CTree?**  
 
-- 🚫 **AI doesn’t always know what you want**
-- 🚫 **AI is unpredictable without good structure**
-- 🚫 **AI-generated outputs can be inconsistent**
+Most AI tools are built to **automate everything**—but that approach has serious flaws:  
 
-That’s where **CTree** comes in. It bridges the gap between human intuition and AI execution by giving you a structured way to:
+🚫 **AI doesn’t always know what you want.**  
+🚫 **AI-generated outputs are often unpredictable.**  
+🚫 **Without structure, AI solutions become inconsistent.**  
 
-✅ Organize **complex ideas** before sending them to AI  
-✅ Generate **clear, structured outputs** that AI tools can follow  
-✅ Take advantage of **AI’s capabilities without losing control**  
+That’s where **CTree comes in.** It bridges the gap between **human intuition and AI execution** by giving you a structured way to:  
 
-Instead of fighting against AI’s quirks, CTree **works with them**, making it easier for you to **guide AI into producing better results.**
+✅ **Organize complex ideas** before sending them to AI  
+✅ **Generate structured outputs** that AI tools can follow  
+✅ **Leverage AI’s power** without losing control  
 
-## Installation
+Instead of **fighting against AI’s quirks**, CTree helps you **work with them**—ensuring AI stays an asset, not a liability.  
 
-To install CTree, run the following commands:
+---
+
+## **⚡ Installation**  
+
+Install CTree by running:  
 
 ```sh
 sudo cp ctree.sh /usr/local/bin/ctree
 sudo chmod +x /usr/local/bin/ctree
 ```
 
-## Setup
+---
 
-To get started, configure the following files:
+## **🔧 Setup**  
 
-```sh
-# Create the configuration files if they don’t exist
-touch ~/.ctreeconf ~/.ctreeignore
-```
+CTree uses two configuration files:  
 
-Alternatively, you can copy an existing `.gitignore` file as a starting point:
+### **1️⃣ `~/.ctreeconf` (File Extension Mappings)**  
 
-```sh
-cp .gitignore ~/.ctreeignore
-```
-
-### Configuration: `~/.ctreeconf`
-
-CTree uses a configuration file to map numeric flags to file extensions for selective extraction. Example:
+Maps numeric flags to file extensions for selective extraction. Example:  
 
 ```ini
 [flags]
@@ -64,9 +59,9 @@ CTree uses a configuration file to map numeric flags to file extensions for sele
 10 = java
 ```
 
-### Ignore Rules: `~/.ctreeignore`
+### **2️⃣ `~/.ctreeignore` (Ignore Rules)**  
 
-CTree also supports ignoring files and directories similar to `.gitignore`. Example:
+Defines which files and directories should be skipped. Example:  
 
 ```gitignore
 node_modules/
@@ -75,85 +70,106 @@ build/
 *.log
 ```
 
-## Usage
+To create these files, run:  
 
-### Basic Usage
+```sh
+touch ~/.ctreeconf ~/.ctreeignore
+```
 
-Run CTree to generate a directory tree:
+Or copy an existing `.gitignore`:  
+
+```sh
+cp .gitignore ~/.ctreeignore
+```
+
+---
+
+## **📌 Usage**  
+
+### **🌳 Generate a Directory Tree**  
 
 ```sh
 ctree -v .
 ```
 
-Extract all relevant files with increased verbosity:
+### **📂 Extract Relevant Files**  
 
 ```sh
 ctree -vv -a > output.ctree
 ```
 
-### Extracting Specific Code Sections
+### **🎯 Extracting Specific Code Sections**  
 
-#### FastAPI Project
+#### **FastAPI Project**  
 
-To extract all routers from a FastAPI application located in `app/routers/`, use:
+Extract all routers:  
 
 ```sh
 ctree -vv -o app/routers
 ```
 
-To extract all service modules:
+Extract all service modules:  
 
 ```sh
 ctree -vv -o app/services
 ```
 
-#### Monorepo Structure
+#### **Monorepo Structure**  
 
-Extract all packages from a monorepo:
+Extract all packages:  
 
 ```sh
 ctree -vv -o monorepo/packages
 ```
 
-Extract all components from an application:
+Extract all components:  
 
 ```sh
 ctree -vv -o app/components
 ```
 
-### Customizing Extraction
+### **🎛 Custom Extraction**  
 
-You can extract specific file extensions using mapped flags:
+Extract specific file types using flags:  
 
 ```sh
 ctree -vv -2 -o app/pages
 ```
 
-Or specify custom extensions:
+Or specify custom extensions:  
 
 ```sh
 ctree -vv -F yaml toml -o config app
 ```
 
-### Using a Custom Ignore File
+Use a **custom ignore file**:  
 
 ```sh
 ctree -vv -a -L /path/to/custom_ignore.txt
 ```
 
-## Who is CTree For?
+---
 
-- **AI developers** who want more structured control over AI outputs  
-- **Researchers & engineers** working with complex, multi-layered ideas  
-- **Anyone using AI tools like O1-Mini** who wants **more consistency and control**  
+## **🧠 Who is CTree For?**  
 
-If you’ve ever been frustrated by **AI’s unpredictability**, CTree is the missing piece that helps you **take charge of the interaction.**
+CTree is built for:  
 
-## Final Thoughts
+🔹 **AI developers** who need structured control over AI outputs  
+🔹 **Engineers & researchers** working with complex, multi-layered projects  
+🔹 **Anyone using AI tools like O1-Mini** who wants **more consistency & control**  
 
-CTree flips the usual AI workflow on its head. **Instead of AI doing everything, it helps *you* work smarter with AI.**
+If you’ve ever been **frustrated by AI’s unpredictability**, CTree is the **missing piece** that helps you **take charge of AI interactions.**  
 
-Rather than treating AI as an **autonomous worker**, CTree treats AI as a **tool that needs proper input to function effectively.** That makes it one of the first **human-first AI augmentation tools**—built to **empower, not replace.**
+---
 
-🚀 **Take control of your AI interactions with CTree.**
+## **🛠 Final Thoughts**  
 
+CTree **flips the usual AI workflow on its head.**  
+
+Most AI tools are built to **replace human effort.** CTree is designed to **make human-AI collaboration stronger.**  
+
+Instead of treating AI like an **autonomous worker**, CTree treats AI as a **tool that needs proper input to function effectively.**  
+
+**This is one of the first true *human-first AI augmentation tools***—built to **empower, not replace.**  
+
+🚀 **Take control of your AI interactions with CTree.**  
