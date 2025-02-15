@@ -26,6 +26,18 @@ Instead of **fighting against AI’s quirks**, CTree helps you **work with them*
 
 ---
 
+## **Example Workflow**  
+
+1. **Request a change** – Describe what needs to be modified.  
+2. **Modify the modular parts** – Implement the changes in the relevant components.  
+3. **Use CTree to update project knowledge** – Run CTree on relevant directories like `components/base/` and `app/`.  
+4. **Debug issues** – Paste VSCodium's problem output into a new chat and iterate.  
+5. **Repeat the process** – Once the project is stable again, decide on the next improvement.  
+
+When starting out, manually applying CTree to all necessary directories can take time. Over time, refining your workflow will make this process more efficient.  
+
+---
+
 ## **⚡ Installation**  
 
 Install CTree by running:  
@@ -98,7 +110,7 @@ ctree -v .
 ctree -vv -a > output.ctree
 ```
 
-### **🎯 Extracting Specific Code Sections**  
+### **🌟 Extracting Specific Code Sections**  
 
 #### **FastAPI Project**  
 
@@ -128,7 +140,7 @@ Extract all components:
 ctree -vv -o app/components
 ```
 
-### **🎛 Custom Extraction**  
+### **🎮 Custom Extraction**  
 
 Extract specific file types using flags:  
 
@@ -172,4 +184,5 @@ Instead of treating AI like an **autonomous worker**, CTree treats AI as a **too
 
 **This is one of the first true *human-first AI augmentation tools***—built to **empower, not replace.**  
 
-🚀 **Take control of your AI interactions with CTree.**  
+🚀 **Take control of your AI interactions with CTree.**
+
