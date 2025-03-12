@@ -1,46 +1,21 @@
-# **CTree**  
+# CTree: Tame AI Chaos with Structured Power
 
-CTree is a **CLI tool** designed to keep modular codebases manageable, especially in **AI-assisted development**. Instead of letting AI **dictate your workflow**, CTree helps **you** structure and extract code efficiently—giving you more **control and consistency.**  
-
-Unlike typical AI automation tools, **CTree is human-first.** It’s not here to replace decision-making—it’s here to **enhance it.**  
-
-I built CTree using **O1-Mini** to push beyond my current skill level, leveraging modular development to scale effectively.  
+**CTree** is a CLI tool designed to transform AI-generated code from sprawl to structure. It’s built to manage complexity, offering a configurable way to snapshot and organize codebases for modular development—ideal for Next.js apps, FastAPI backends, or any AI-driven project.
 
 ---
 
-## **🚀 Why CTree?**  
+## Why CTree?
 
-Most AI tools are built to **automate everything**—but that approach has serious flaws:  
+AI can produce brilliant but unwieldy code. CTree solves that:
+- **Control Complexity**: Extract and organize code for AI input.
+- **Scale Smart**: Manage modular updates across files and dirs.
+- **Stay in Charge**: Guide AI with precision, not blind trust.
 
-🚫 **AI doesn’t always know what you want.**  
-🚫 **AI-generated outputs are often unpredictable.**  
-🚫 **Without structure, AI solutions become inconsistent.**  
-
-That’s where **CTree comes in.** It bridges the gap between **human intuition and AI execution** by giving you a structured way to:  
-
-✅ **Organize complex ideas** before sending them to AI  
-✅ **Generate structured outputs** that AI tools can follow  
-✅ **Leverage AI’s power** without losing control  
-
-Instead of **fighting against AI’s quirks**, CTree helps you **work with them**—ensuring AI stays an asset, not a liability.  
+It’s a precision tool for code management, enabling rapid refactoring and scalability.
 
 ---
 
-## **Example Workflow**  
-
-1. **Request a change** – Describe what needs to be modified.  
-2. **Modify the modular parts** – Implement the changes in the relevant components.  
-3. **Use CTree to update project knowledge** – Run CTree on relevant directories like `components/base/` and `app/`.  
-4. **Debug issues** – Paste VSCodium's problem output into a new chat and iterate.  
-5. **Repeat the process** – Once the project is stable again, decide on the next improvement.  
-
-When starting out, manually applying CTree to all necessary directories can take time. Over time, refining your workflow will make this process more efficient.  
-
----
-
-## **⚡ Installation**  
-
-Install CTree by running:  
+## Installation
 
 ```sh
 sudo cp ctree.sh /usr/local/bin/ctree
@@ -49,127 +24,267 @@ sudo chmod +x /usr/local/bin/ctree
 
 ---
 
-## **🔧 Setup**  
+## Setup
 
-CTree uses two configuration files:  
+Two config files (create with `touch ~/.ctreeconf ~/.ctreeignore`):
 
-### **1️⃣ `~/.ctreeconf` (File Extension Mappings)**  
-
-Maps numeric flags to file extensions for selective extraction. Example:  
-
+### `~/.ctreeconf` (File Flags)
+Map flags to extensions:
 ```ini
+#~/.ctreeconf
+
 [flags]
-1 = py
-2 = tsx, jsx
-3 = js, css
-4 = json, ts
-5 = json
+1 = tsx, ts
+2 = tsx, ts, json
+3 = tsx, ts, prisma, json, js, py
+4 = prisma, json, js, md, mjs
+5 = js
 6 = txt, md
-7 = py, md, txt
+7 = txt, sh
 8 = py
-9 = tsx, ts, json, prisma
-10 = java
+9 = ts, tsx, py
+10 = txt, md
 ```
+Customize for your stack.
 
-### **2️⃣ `~/.ctreeignore` (Ignore Rules)**  
-
-Defines which files and directories should be skipped. Example:  
-
+### `~/.ctreeignore` (Ignore Patterns)
+Mimics `.gitignore` for familiarity:
 ```gitignore
 node_modules/
 __pycache__/
-build/
 *.log
 ```
-
-To create these files, run:  
-
-```sh
-touch ~/.ctreeconf ~/.ctreeignore
-```
-
-Or copy an existing `.gitignore`:  
-
-```sh
-cp .gitignore ~/.ctreeignore
-```
+See `ctreeignore.txt` for more.
 
 ---
 
-## **📌 Usage**  
+## Usage
 
-### **🌳 Generate a Directory Tree**  
-
+### Basic Tree
+Generate a directory tree:
 ```sh
-ctree -v .
+ctree
 ```
 
-### **📂 Extract Relevant Files**  
-
+#### Example Output
 ```sh
-ctree -vv -a > output.ctree
+db_api$ ctree
+db_api/
+├── __init__.py
+├── config.py
+├── db.py
+├── main.py
+├── models.py
+├── routers/
+│   ├── __init__.py
+│   ├── content.py
+│   ├── content_item.py
+│   ├── embedding.py
+│   └── processor.py
+├── schemas.py
+├── sentences_main.py
+└── utils.py
 ```
+- Displays a clean hierarchy of the `db_api` directory.
 
-### **🌟 Extracting Specific Code Sections**  
+### Extract with Content
+Extract file contents with configurable verbosity:
+- `-vv`: Include file contents.
+- `-vvv`: Include contents with additional details (e.g., comments, full structure).
+- All files:
+  ```sh
+  ctree -vvv -a > project.ctree
+  ```
+- Targeted dirs:
+  ```sh
+  cd db_api/routers/
+  ctree -8 -vvv > routers.ctree
+  ```
 
-#### **FastAPI Project**  
-
-Extract all routers:  
-
+#### Example Output
+Running `ctree -8 -vvv` in `db_api/routers/` produces:
 ```sh
-ctree -vv -o app/routers
+routers/
+├── __init__.py
+│       # db_api/routers/__init__.py
+│       
+│       from .content import router as content_router
+│       from .content_item import router as content_item_router
+│       from .processor import router as Processing_router
+│       from .embedding import router as embedding_router
+│       
+│       __all__ = ["content_router", "content_item_router", "processing_router", "embedding_router"]
+├── content.py
+│       # db_api/routers/content.py
+│       import json
+│       import logging
+│       from typing import Any, Dict, List, Optional
+│       
+│       from fastapi import APIRouter, HTTPException, Query, Body
+│       from db_api.db import get_db
+│       from db_api.schemas import Content, ContentCreate, SuccessResponse
+│       
+│       router = APIRouter(prefix="/content", tags=["Content"])
+│       logger = logging.getLogger(__name__)
+│       
+│       @router.post("", response_model=SuccessResponse)
+│       async def create_content(item: ContentCreate):
+│           """Create a new content entry."""
+│           try:
+│               with get_db() as conn:
+│                   metadata_json = json.dumps(item.metadata) if item.metadata is not None else None
+│                   cursor = conn.execute(
+│                       """
+│                       INSERT INTO content (type, content, metadata) 
+│                       VALUES (?, ?, ?)
+│                       RETURNING id, type, content, metadata, created_at
+│                       """,
+│                       (item.type.strip(), item.content.strip(), metadata_json)
+│                   )
+│                   result = cursor.fetchone()
+│                   conn.commit()
+│                   created_item = Content(
+│                       id=result["id"],
+│                       type=result["type"],
+│                       content=result["content"],
+│                       metadata=json.loads(result["metadata"]) if result["metadata"] else None,
+│                       created_at=result["created_at"]
+│                   )
+│                   return SuccessResponse(data=created_item)
+│           except Exception as e:
+│               logger.error(f"Error creating content: {str(e)}")
+│               raise HTTPException(status_code=500, detail={"error": "Failed to create content"})
+│       # ... (additional endpoints: get, update, delete, stats, batch operations)
+├── content_item.py
+│       # db_api/routers/content_item.py
+│       import json
+│       import logging
+│       from typing import List
+│       
+│       from fastapi import APIRouter, HTTPException, Body
+│       from db_api.db import get_db
+│       from db_api.schemas import ContentItem, ContentItemCreate, ContentItemSuccessResponse
+│       
+│       router = APIRouter(prefix="/content", tags=["Content Items"])
+│       logger = logging.getLogger(__name__)
+│       
+│       @router.post("/{content_id}/items", response_model=ContentItemSuccessResponse)
+│       async def create_content_item(content_id: int, item: ContentItemCreate):
+│           """Create a new content item for a specific content entry."""
+│           try:
+│               with get_db() as conn:
+│                   parent_cursor = conn.execute("SELECT id FROM content WHERE id = ?", (content_id,))
+│                   if parent_cursor.fetchone() is None:
+│                       raise HTTPException(status_code=404, detail="Parent content not found")
+│                   metadata_json = json.dumps(item.metadata) if item.metadata is not None else None
+│                   cursor = conn.execute(
+│                       """
+│                       INSERT INTO content_item (content_id, title, body, metadata) 
+│                       VALUES (?, ?, ?, ?)
+│                       RETURNING id, content_id, title, body, metadata, created_at, updated_at
+│                       """,
+│                       (content_id, item.title.strip(), item.body.strip(), metadata_json)
+│                   )
+│                   row = cursor.fetchone()
+│                   conn.commit()
+│                   created_item = ContentItem(
+│                       id=row["id"],
+│                       content_id=row["content_id"],
+│                       title=row["title"],
+│                       body=row["body"],
+│                       metadata=json.loads(row["metadata"]) if row["metadata"] else None,
+│                       created_at=row["created_at"],
+│                       updated_at=row["updated_at"]
+│                   )
+│                   return ContentItemSuccessResponse(data=created_item)
+│           except Exception as e:
+│               logger.error(f"Error creating content item: {str(e)}")
+│               raise HTTPException(status_code=500, detail="Failed to create content item")
+│       # ... (additional endpoints: get, update, delete)
+├── embedding.py
+│       # db_api/routers/embedding.py
+│       import json
+│       import logging
+│       import torch
+│       from fastapi import APIRouter, HTTPException
+│       from pydantic import BaseModel, Field
+│       from transformers import BertTokenizer, BertModel
+│       
+│       from db_api.db import get_db
+│       from db_api.schemas import Content, ContentItem
+│       
+│       router = APIRouter(prefix="/embeddings", tags=["Embeddings"])
+│       logger = logging.getLogger(__name__)
+│       
+│       tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+│       model = BertModel.from_pretrained("bert-base-uncased")
+│       model.eval()
+│       
+│       class EmbeddingSentenceRequest(BaseModel):
+│           sentence: str = Field(..., min_length=1, max_length=500)
+│       # ... (computes BERT embeddings, stores in DB)
+└── processor.py
+│       # db_api/routers/processor.py
+│       from fastapi import APIRouter, HTTPException
+│       import json
+│       from db_api.db import get_db
+│       from db_api.schemas import ProcessedMappingResponse
+│       
+│       router = APIRouter(prefix="/processor", tags=["Processor"])
+│       
+│       @router.get("/{content_id}/items/{item_id}/process", response_model=ProcessedMappingResponse)
+│       async def process_content_item_metadata(content_id: int, item_id: int):
+│           """Process metadata by splitting input text into words."""
+│           try:
+│               with get_db() as conn:
+│                   cursor = conn.execute(
+│                       "SELECT metadata FROM content_item WHERE content_id = ? AND id = ?",
+│                       (content_id, item_id)
+│                   )
+│                   row = cursor.fetchone()
+│                   if row is None:
+│                       raise HTTPException(status_code=404, detail="Content item not found")
+│                   metadata = json.loads(row["metadata"])
+│                   input_text = metadata.get("input")
+│                   words = input_text.split()
+│                   processed_mapping = {str(i + 1): word for i, word in enumerate(words)}
+│                   return ProcessedMappingResponse(exit_code=0, processed_mapping=processed_mapping)
+│           except Exception as e:
+│               raise HTTPException(status_code=500, detail=str(e))
 ```
+- Captures `.py` files (flag `-8`) with full content and structure.
 
-Extract all service modules:  
-
+#### Examples
+##### Next.js Refactor
 ```sh
-ctree -vv -o app/services
+ctree -vvv -1 -o app pages > next.ctree
 ```
+- Grabs `.tsx`, `.ts` for AI-driven UI tweaks.
 
-#### **Monorepo Structure**  
-
-Extract all packages:  
-
+##### FastAPI Backend
 ```sh
-ctree -vv -o monorepo/packages
+cd db_api/routers/
+ctree -vvv -8 > routers.ctree
 ```
-
-Extract all components:  
-
-```sh
-ctree -vv -o app/components
-```
-
-### **🎮 Custom Extraction**  
-
-Extract specific file types using flags:  
-
-```sh
-ctree -vv -2 -o app/pages
-```
-
-Or specify custom extensions:  
-
-```sh
-ctree -vv -F yaml toml -o config app
-```
-
-Use a **custom ignore file**:  
-
-```sh
-ctree -vv -a -L /path/to/custom_ignore.txt
-```
+- Targets `.py` files (e.g., `content.py`, `processor.py`) for API updates.
 
 ---
 
-## **🧠 Who is CTree For?**  
+## Workflow: Incremental AI Updates
 
-CTree is built for:  
+CTree supports manual updates with directory-level commits, scaling from small tweaks to massive refactors (e.g., 0 to 10,000 lines in a day, often reducing lines while preserving functionality). Here’s the process with an AI model (e.g., Anthropic):
+1. **Task**: Update a data type (e.g., `str` to `UUID`) in `db_api/routers/content.py`.
+2. **Extract**: Run `cd db_api/routers/ && ctree -vvv -8 > routers.ctree`.
+3. **Feed AI**: Pass `routers.ctree` to Anthropic, request the change.
+4. **Update**: Manually replace modified files (e.g., `content.py`) with the AI’s output.
+5. **Repeat**: For other dirs (e.g., `db_api/`), extract, update, replace.
+6. **Commit**: Once all dirs are updated, `git commit` entire directories in one pass.
 
-🔹 **AI developers** who need structured control over AI outputs  
-🔹 **Engineers & researchers** working with complex, multi-layered projects  
-🔹 **Anyone using AI tools like O1-Mini** who wants **more consistency & control**  
-
-If you’ve ever been **frustrated by AI’s unpredictability**, CTree is the **missing piece** that helps you **take charge of AI interactions.**  
+This workflow ensures consistency and scalability across large codebases.
 
 ---
+
+## Who’s It For?
+- **AI Engineers**: Structure AI inputs for predictable outputs.
+- **R&D Devs**: Tame experimental codebases.
+- **Teams**: Precision for Next.js, FastAPI, or beyond.
