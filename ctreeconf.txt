@@ -3,12 +3,11 @@
 [flags]
 1 = tsx, ts
 2 = tsx, ts, json
-3 = tsx, ts, prisma, json, js
-4 = json, ts
-5 = json
+3 = tsx, ts, prisma, json, js, py
+4 = prisma, json, js, md, mjs
+5 = js
 6 = txt, md
-7 = py, md, txt
+7 = txt, sh
 8 = py
-9 = tsx, ts, json, prisma
+9 = ts, tsx, py
 10 = txt, md
-
