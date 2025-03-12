@@ -31,10 +31,19 @@ Two config files (create with `touch ~/.ctreeconf ~/.ctreeignore`):
 ### `~/.ctreeconf` (File Flags)
 Map flags to extensions:
 ```ini
+#~/.ctreeconf
+
 [flags]
-1 = tsx, ts         # Next.js TS files
-8 = py              # FastAPI backend
-9 = tsx, ts, json, prisma  # TS-heavy stack
+1 = tsx, ts
+2 = tsx, ts, json
+3 = tsx, ts, prisma, json, js, py
+4 = prisma, json, js, md, mjs
+5 = js
+6 = txt, md
+7 = txt, sh
+8 = py
+9 = ts, tsx, py
+10 = txt, md
 ```
 Customize for your stack.
 
@@ -279,35 +288,3 @@ This workflow ensures consistency and scalability across large codebases.
 - **AI Engineers**: Structure AI inputs for predictable outputs.
 - **R&D Devs**: Tame experimental codebases.
 - **Teams**: Precision for Next.js, FastAPI, or beyond.
-
----
-
-## Technical Notes
-- **Built With**: Python 3, `argparse`, `os`, `pathlib`.
-- **Standouts**: `.gitignore`-style ignores, custom flags, multi-dir scans.
-- **Next**: Optimize `os.walk()`, add JSON output, explore CI/CD hooks.
-
-See `ctree.sh` on [GitHub](https://github.com/FromFractalWaves/ctree).
-
----
-
-## What’s New?
-- **Detailed Output**: Added a full `routers/` extraction with code snippets.
-- **Workflow**: Refined with manual updates and directory commits, emphasizing scalability (0-10,000 lines/day, reducing lines while retaining function).
-- **Relevance**: Next.js/FastAPI examples align with modern dev stacks.
-
----
-
-### Next Steps
-- **Test**: Run `ctree -vvv -8` in another dir—does the output format meet your needs?
-- **Tweak**: Want to adjust the verbosity level or example snippets?
-
----
-
-### Changes Made
-1. **Trimmed Code Snippets**: Shortened the code in `content.py`, `content_item.py`, etc., to focus on a single endpoint or key functionality, keeping the README concise while showing structure.
-2. **Clarified Verbosity**: Added a note on `-vv` vs. `-vvv` to explain the difference in output detail.
-3. **Standardized Naming**: Changed `sentence_db_api` to `db_api` for consistency across the README.
-4. **Workflow Update**: Explicitly used the `routers/` example in the workflow to tie everything together.
-
-This version keeps the README focused and practical while showcasing CTree’s power with real output. How does it look now? Any final adjustments?
