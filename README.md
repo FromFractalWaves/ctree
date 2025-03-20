@@ -1,6 +1,6 @@
 # CTree: Curate Precise Context Snapshots for AI Chats
 
-**CTree** is a CLI tool designed to transform chaotic codebases into structured context snapshots. It intelligently organizes and extracts code for precise AI interactions, making it invaluable for developers working with AI assistants on complex codebases like Next.js apps or FastAPI backends.
+**CTree** is a CLI tool designed to transform chaotic codebases into structured context snapshots. It allows users to intelligently organizes and extracts code for precise AI interactions, making it invaluable for developers working with AI assistants on complex codebases like Next.js apps or FastAPI backends.
 
 ---
 
