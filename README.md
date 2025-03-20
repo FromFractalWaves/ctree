@@ -114,21 +114,21 @@ db_api/
 
 ### Creating Context Snapshots
 
-Include file contents with configurable verbosity:
+Include file contents with configurable line limits:
 
-- Low verbosity:
+- Basic usage:
   ```sh
   ctree -8 db_api
   ```
 
-- High verbosity (includes comments and full structure):
+- With line limits (limit to 200 lines per file):
   ```sh
-  ctree -8 -vvv db_api
+  ctree -8 -ll 200 db_api
   ```
 
 - All file types:
   ```sh
-  ctree -a -vvv > project.ctree
+  ctree -a
   ```
 
 ### Targeted Context Creation
@@ -137,11 +137,11 @@ Focus on specific directories and file types:
 
 ```sh
 # Extract TypeScript/React files from app and pages directories
-ctree -1 -o app pages > frontend.ctree
+ctree -1 -o app pages
 
 # Create snapshot of Python API routers
 cd db_api
-ctree -8 -vvv routers > routers.ctree
+ctree -8 -ll 200 routers
 ```
 
 ### Advanced Options
@@ -158,7 +158,7 @@ ctree -8 -vvv routers > routers.ctree
 CTree excels at facilitating structured AI interactions:
 
 1. **Define Task**: Identify what needs to be changed (e.g., update a data type in `content.py`)
-2. **Create Context**: Run `ctree -8 -vvv routers > routers.ctree` to capture the relevant code
+2. **Create Context**: Run `ctree -8 -ll 200 routers` to capture the relevant code
 3. **Chat with AI**: Upload the `.ctree` file to your AI assistant with clear instructions
 4. **Implement Changes**: Apply the AI-generated updates to your codebase
 5. **Iterate**: Repeat for other components or refinements
@@ -181,7 +181,7 @@ This workflow maintains context integrity and scales from small tweaks to major 
 - **Automatic Output**: Content snapshots automatically save to `.ctree` files
 - **Recursive Exclusion**: New `-xr` flag for excluding directories and subdirectories
 - **Flexible Filtering**: Combined numeric flags, custom extensions, and directory targeting
-- **Output Control**: Customizable line limits and output destinations
+- **Output Control**: Customizable line limits with `-ll` and output destinations
 
 ---
 
