@@ -2,32 +2,39 @@
 """
 ctree: A command-line utility to generate a tree of files in one or more directories,
 excluding specified patterns defined in a .ctreeignore file. Optionally includes
-contents of specified file extensions based on verbosity and configuration.
+contents of specified file extensions based on configuration.
 
 Usage:
-    ctree [--verbose|-v] [--path-to-ignore -L PATH] [--exclude-dir -x DIR [DIR ...]]
-          [--multi-mode -i DIR [DIR ...]] [--multi-selection -o DIR [DIR ...]]
-          [--file-exts -F EXT [EXT ...]] [-1] [-2] [-3] [-4] [-5] [-6] [-7] [-8] [-9] [--10]
-          [directories ...]
+    ctree [--path-to-ignore -L PATH] [--exclude-dir -x DIR [DIR ...]]
+          [--recursive-exclude-content -xr DIR [DIR ...]] [--multi-mode -i DIR [DIR ...]]
+          [--multi-selection -o DIR [DIR ...]] [--file-exts -F EXT [EXT ...]]
+          [--line-limit -ll NUM] [--tree-only -t] [--output-dir -od DIR]
+          [-1] [-2] [-3] [-4] [-5] [-6] [-7] [-8] [-9] [--10] [directories ...]
 
 Options:
     -h, --help              Show this help message and exit.
-    -v, --verbose           Increase verbosity level. Use -vv for full contents.
-    -a, --all-exts          Include contents for all file extensions (requires -vv).
+    -t, --tree-only         Output tree structure only, without file contents.
+    -a, --all-exts          Include contents for all file extensions.
+    -od DIR, --output-dir DIR
+                           Specify output directory for .ctree file (default: current directory).
     -F EXT [EXT ...], --file-exts EXT [EXT ...]
-                            Specify file extensions to include contents for when using -vv.
-                            Example: -F tsx jsx js css
+                           Specify file extensions to include contents for.
+                           Example: -F tsx jsx js css
     -L PATH, --path-to-ignore PATH
-                            Specify a custom path to a .ctreeignore file (overrides default behavior).
+                           Specify a custom path to a .ctreeignore file (overrides default behavior).
     -x DIR [DIR ...], --exclude-dir DIR [DIR ...]
-                            Specify directories to exclude from verbose content inclusion.
-                            Example: -x node_modules build dist
+                           Specify directories to exclude from content inclusion.
+                           Example: -x node_modules build dist
+    -xr DIR [DIR ...]      Specify directories to recursively exclude content from, including all subdirectories.
+                           Example: -xr node_modules build dist
+    -ll NUM, --line-limit NUM
+                           Limit the number of lines shown per file (default: unlimited).
     -i DIR [DIR ...], --multi-mode DIR [DIR ...]
-                            Specify directories to apply verbosity to exclusively.
-                            Example: -i src tests
+                           Specify directories to apply content inclusion to exclusively.
+                           Example: -i src tests
     -o DIR [DIR ...], --multi-selection DIR [DIR ...]
-                            Specify multiple directories to include in the tree.
-                            Example: -o src app
+                           Specify multiple directories to include in the tree.
+                           Example: -o src app
     -1                      Include contents for extensions mapped to flag -1 in ~/.ctreeconf.
     -2                      Include contents for extensions mapped to flag -2 in ~/.ctreeconf.
     -3                      Include contents for extensions mapped to flag -3 in ~/.ctreeconf.
@@ -40,23 +47,26 @@ Options:
     --10                    Include contents for extensions mapped to flag -10 in ~/.ctreeconf.
 
 Examples:
-    # Generate tree for the current directory with increased verbosity
-    ctree -v . > .ctree
+    # Generate tree structure only for the current directory
+    ctree -t . > .ctree
 
-    # Generate tree for 'app' and 'pages' directories with full contents for flag -2 extensions
-    ctree -vv -2 -o app pages > .ctree
+    # Generate tree for 'app' and 'pages' directories with contents for flag -2 extensions
+    ctree -2 -o app pages > .ctree
 
-    # Generate tree excluding 'node_modules' and 'build' directories
-    ctree -v -x node_modules build . > .ctree
+    # Generate tree with contents, limiting each file to 200 lines
+    ctree -6 -ll 200 > .ctree
+    
+    # Generate tree excluding 'node_modules' and all its subdirectories from content inclusion
+    ctree -8 -xr node_modules . > .ctree
 
-    # Generate tree applying verbosity only to 'src' and 'tests' directories
-    ctree -vv -i src tests . > .ctree
+    # Generate tree applying content inclusion only to 'src' and 'tests' directories
+    ctree -1 -i src tests . > .ctree
 
     # Include additional extensions via --file-exts
-    ctree -vv -1 -F yaml toml -o config app > .ctree
+    ctree -1 -F yaml toml -o config app > .ctree
 
     # Using a custom .ctreeignore file
-    ctree -vv -a -L /path/to/custom_ignore.txt app > .ctree
+    ctree -a -L /path/to/custom_ignore.txt app > .ctree
 """
 
 import os
@@ -71,21 +81,26 @@ def parse_arguments():
         description="Generate a tree structure of files in one or more directories, excluding specified patterns defined in a .ctreeignore file."
     )
     parser.add_argument(
-        '-v', '--verbose',
-        action='count',
-        default=0,
-        help='Increase verbosity level. Use -vv for full contents.'
+        '-t', '--tree-only',
+        action='store_true',
+        help='Output tree structure only, without file contents.'
     )
     parser.add_argument(
         '-a', '--all-exts',
         action='store_true',
-        help='Include contents for all file extensions (requires -vv).'
+        help='Include contents for all file extensions.'
+    )
+    parser.add_argument(
+        '-ll', '--line-limit',
+        type=int,
+        metavar='NUM',
+        help='Limit the number of lines shown per file (default: unlimited).'
     )
     parser.add_argument(
         '-F', '--file-exts',
         nargs='+',
         metavar='EXT',
-        help='Specify file extensions to include contents for when using -vv. Example: -F tsx jsx js css'
+        help='Specify file extensions to include contents for. Example: -F tsx jsx js css'
     )
     parser.add_argument(
         '-L', '--path-to-ignore',
@@ -96,19 +111,30 @@ def parse_arguments():
         '-x', '--exclude-dir',
         nargs='+',
         metavar='DIR',
-        help='Specify directories to exclude from verbose content inclusion. Example: -x node_modules build dist'
+        help='Specify directories to exclude from content inclusion. Example: -x node_modules build dist'
+    )
+    parser.add_argument(
+        '-xr',
+        nargs='+',
+        metavar='DIR',
+        help='Specify directories to recursively exclude content from, including all subdirectories. Example: -xr node_modules build dist'
     )
     parser.add_argument(
         '-i', '--multi-mode',
         nargs='+',
         metavar='DIR',
-        help='Specify directories to apply verbosity to exclusively. Example: -i src tests'
+        help='Specify directories to apply content inclusion to exclusively. Example: -i src tests'
     )
     parser.add_argument(
         '-o', '--multi-selection',
         nargs='+',
         metavar='DIR',
         help='Specify multiple directories to include in the tree. Example: -o src app'
+    )
+    parser.add_argument(
+        '-od', '--output-dir',
+        metavar='DIR',
+        help='Specify output directory for .ctree file (default: current directory)'
     )
     
     # Adding numeric flags -1 to -10
@@ -147,6 +173,9 @@ def load_config(config_path):
         1 = py
         2 = tsx, jsx
         3 = js, css
+        
+        [settings]
+        default_filename = project.ctree
     """
     config = configparser.ConfigParser()
     if not os.path.isfile(config_path):
@@ -159,11 +188,19 @@ def load_config(config_path):
 3 = js, css
 ...
 10 = java
+
+[settings]
+default_filename = project.ctree
 """)
         sys.exit(1)
     try:
         config.read(config_path)
-        flags_mapping = {}
+        result = {
+            'flags_mapping': {},
+            'default_filename': 'output.ctree'  # Default value if not specified
+        }
+        
+        # Load flags section
         if 'flags' in config.sections():
             for key in config['flags']:
                 try:
@@ -172,13 +209,19 @@ def load_config(config_path):
                         print(f"Warning: Flag number '{flag_num}' out of range (1-10). Ignoring.", file=sys.stderr)
                         continue
                     extensions = [ext.strip().lower() for ext in config['flags'][key].split(',')]
-                    flags_mapping[flag_num] = extensions
+                    result['flags_mapping'][flag_num] = extensions
                 except ValueError:
                     print(f"Warning: Invalid flag '{key}' in config. Flags should be numeric (1-10).", file=sys.stderr)
         else:
             print(f"Error: No 'flags' section found in '{config_path}'.", file=sys.stderr)
             sys.exit(1)
-        return flags_mapping
+            
+        # Load settings section if it exists
+        if 'settings' in config.sections():
+            if 'default_filename' in config['settings']:
+                result['default_filename'] = config['settings']['default_filename'].strip()
+                
+        return result
     except Exception as e:
         print(f"Error: Failed to parse configuration file '{config_path}': {e}", file=sys.stderr)
         sys.exit(1)
@@ -216,29 +259,33 @@ def should_ignore(name, is_dir, ignore_patterns):
                 return True
     return False
 
-def read_file_contents(file_path, max_lines=None):
+def read_file_contents(file_path, line_limit=None):
     """
-    Read the first few lines of a file to include in the tree.
-    If max_lines is None, read the entire file.
+    Read lines from a file to include in the tree.
+    If line_limit is None, read the entire file.
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = []
-            if max_lines is None:
+            if line_limit is None:
                 lines = [line.rstrip('\n') for line in f]
             else:
-                for _ in range(max_lines):
+                for _ in range(line_limit):
                     line = f.readline()
                     if not line:
                         break
                     lines.append(line.rstrip('\n'))
-        if max_lines and os.path.getsize(file_path) > 10000:  # Optional: limit for very large files
-            lines.append('...')  # Indicate that the file is truncated
+                
+                # Check if there are more lines in the file
+                if f.readline():
+                    lines.append('...')  # Indicate that the file is truncated
+                    
         return lines
     except Exception as e:
         return [f"# Error reading file: {e}"]
 
-def generate_tree(root_dirs, verbosity=0, ignore_patterns=None, include_all_exts=False, specific_exts=None, exclude_dirs=None, multi_mode_dirs=None):
+def generate_tree(root_dirs, tree_only=False, line_limit=None, ignore_patterns=None, include_all_exts=False, 
+                  specific_exts=None, exclude_dirs=None, exclude_recursive_dirs=None, multi_mode_dirs=None):
     """
     Generate the tree structure for the given root directories.
     """
@@ -252,12 +299,16 @@ def generate_tree(root_dirs, verbosity=0, ignore_patterns=None, include_all_exts
 
     if exclude_dirs is None:
         exclude_dirs = []
+        
+    if exclude_recursive_dirs is None:
+        exclude_recursive_dirs = []
 
     if multi_mode_dirs is None:
         multi_mode_dirs = []
 
-    # Normalize exclude_dirs and multi_mode_dirs to absolute paths
+    # Normalize paths to absolute paths
     exclude_dirs = [os.path.abspath(d) for d in exclude_dirs]
+    exclude_recursive_dirs = [os.path.abspath(d) for d in exclude_recursive_dirs]
     multi_mode_dirs = [os.path.abspath(d) for d in multi_mode_dirs]
 
     for root_dir in root_dirs:
@@ -290,6 +341,7 @@ def generate_tree(root_dirs, verbosity=0, ignore_patterns=None, include_all_exts
 
             for index, entry in enumerate(filtered_entries):
                 path = os.path.join(current_path, entry)
+                abs_path = os.path.abspath(path)
                 is_last = index == len(filtered_entries) - 1
                 connector = '└── ' if is_last else '├── '
                 display_entry = entry + ('/' if os.path.isdir(path) else '')
@@ -298,22 +350,35 @@ def generate_tree(root_dirs, verbosity=0, ignore_patterns=None, include_all_exts
                 if os.path.isdir(path):
                     extension = '    ' if is_last else '│   '
                     _tree(path, prefix + extension)
-                elif verbosity > 1:
+                elif not tree_only:
                     # Determine if the file's extension should have its contents included
                     _, ext = os.path.splitext(entry)
                     ext = ext.lstrip('.').lower()
                     include_content = False
 
                     current_abs_path = os.path.abspath(current_path)
+                    
+                    # Check if the current path is in a recursively excluded directory
+                    in_recursive_excluded_dir = False
+                    for excl_dir in exclude_recursive_dirs:
+                        if current_abs_path == excl_dir or current_abs_path.startswith(excl_dir + os.sep):
+                            in_recursive_excluded_dir = True
+                            break
+                    
+                    # Skip content inclusion if in a recursively excluded directory
+                    if in_recursive_excluded_dir:
+                        continue
 
                     # Check if multi-mode is enabled and if the current directory is in multi_mode_dirs
                     if multi_mode_dirs:
-                        # Only apply verbosity if the current directory is in multi_mode_dirs
-                        if current_abs_path in multi_mode_dirs:
-                            if include_all_exts:
-                                include_content = True
-                            elif ext in specific_exts:
-                                include_content = True
+                        # Only apply content inclusion if the current directory is in multi_mode_dirs
+                        for multi_dir in multi_mode_dirs:
+                            if current_abs_path == multi_dir or current_abs_path.startswith(multi_dir + os.sep):
+                                if include_all_exts:
+                                    include_content = True
+                                elif ext in specific_exts:
+                                    include_content = True
+                                break
                     else:
                         # If not in multi-mode, apply globally unless the directory is excluded
                         if current_abs_path not in exclude_dirs:
@@ -323,8 +388,7 @@ def generate_tree(root_dirs, verbosity=0, ignore_patterns=None, include_all_exts
                                 include_content = True
 
                     if include_content:
-                        max_lines = None if verbosity >= 3 else 10  # Adjust as needed
-                        contents = read_file_contents(path, max_lines=max_lines)
+                        contents = read_file_contents(path, line_limit=line_limit)
                         for line in contents:
                             tree_lines.append(prefix + ('    ' if is_last else '│   ') + f'    {line}')
 
@@ -343,6 +407,9 @@ def main():
 
     # Combine directories: positional + multi-selection
     root_dirs = positional_dirs + multi_selection_dirs
+    
+    # Get output directory if specified
+    output_dir = args.output_dir if args.output_dir else '.'
 
     # Determine the ignore file path
     ignore_file = None
@@ -384,65 +451,101 @@ def main():
 
     # Load configuration from ~/.ctreeconf
     config_path = os.path.expanduser('~/.ctreeconf')
-    flags_mapping = load_config(config_path)
+    config = load_config(config_path)
+    default_filename = config['default_filename']
 
     # Collect extensions from numeric flags (-1 to -10)
     specific_exts = []
+    has_filter_flag = False
     for i in range(1, 11):
         flag_attr = f'flag_{i}'
         flag_set = getattr(args, flag_attr, False)
         if flag_set:
-            if i in flags_mapping:
-                specific_exts.extend(flags_mapping[i])
+            has_filter_flag = True
+            if i in config['flags_mapping']:
+                specific_exts.extend(config['flags_mapping'][i])
             else:
                 print(f"Warning: No extensions mapped for flag -{i} in config.", file=sys.stderr)
 
     # Collect extensions from --file-exts
     if args.file_exts:
+        has_filter_flag = True
         normalized_exts = [ext.lower().lstrip('.') for ext in args.file_exts]
         specific_exts.extend(normalized_exts)
 
     # Remove duplicates
     specific_exts = list(set(specific_exts))
 
-    # Handle --exclude-dir and --multi-mode
+    # Handle --exclude-dir, -xr, and --multi-mode
     exclude_dirs = args.exclude_dir if args.exclude_dir else []
+    exclude_recursive_dirs = args.xr if args.xr else []
     multi_mode_dirs = args.multi_mode if args.multi_mode else []
 
-    # Normalize multi_mode_dirs to absolute paths
+    # Normalize to absolute paths
     multi_mode_dirs = [os.path.abspath(d) for d in multi_mode_dirs]
-
-    # Normalize exclude_dirs to absolute paths
     exclude_dirs = [os.path.abspath(d) for d in exclude_dirs]
+    exclude_recursive_dirs = [os.path.abspath(d) for d in exclude_recursive_dirs]
 
     # Check for overlapping directories between exclude_dir and multi_mode
     overlapping_dirs = set(exclude_dirs).intersection(set(multi_mode_dirs))
     if overlapping_dirs:
-        print(f"Warning: The following directories are specified in both --exclude-dir and --multi-mode and will be excluded from verbosity: {', '.join(overlapping_dirs)}", file=sys.stderr)
-        # Remove overlapping directories from multi_mode_dirs
+        print(f"Warning: The following directories are specified in both --exclude-dir and --multi-mode and will be excluded from content inclusion: {', '.join(overlapping_dirs)}", file=sys.stderr)
         multi_mode_dirs = [d for d in multi_mode_dirs if d not in overlapping_dirs]
 
-    # Determine if verbosity requires specific flags
-    verbosity = args.verbose
+    # Check for overlapping directories between exclude_recursive_dirs and multi_mode
+    overlapping_recursive_dirs = set(exclude_recursive_dirs).intersection(set(multi_mode_dirs))
+    if overlapping_recursive_dirs:
+        print(f"Warning: The following directories are specified in both -xr and --multi-mode; -xr takes precedence and will recursively exclude content: {', '.join(overlapping_recursive_dirs)}", file=sys.stderr)
+        multi_mode_dirs = [d for d in multi_mode_dirs if d not in overlapping_recursive_dirs]
 
-    if verbosity >= 2:
-        if not (args.all_exts or specific_exts):
-            print("Error: When using -vv, you must specify at least one of the following flags: "
-                  "-a, -1 to -10, -F EXT, --multi-selection/-o, --multi-mode/-i", 
-                  file=sys.stderr)
-            sys.exit(1)
+    # Determine if we should include content or just show the tree
+    tree_only = args.tree_only
+    
+    # If a filter flag is used but tree_only is not specified, we include content
+    if has_filter_flag or args.all_exts:
+        tree_only = False
+        
+    # Handle line limit
+    line_limit = args.line_limit  # None if not specified
 
     # Generate the tree
     tree = generate_tree(
         root_dirs=root_dirs,
-        verbosity=verbosity,
+        tree_only=tree_only,
+        line_limit=line_limit,
         ignore_patterns=ignore_patterns,
         include_all_exts=args.all_exts,
         specific_exts=specific_exts,
         exclude_dirs=exclude_dirs,
+        exclude_recursive_dirs=exclude_recursive_dirs,
         multi_mode_dirs=multi_mode_dirs
     )
-    print(tree)
+    
+    # If any filter flag is used, automatically output to a .ctree file
+    if has_filter_flag or args.all_exts:
+        # Create output filename based on roots
+        if len(root_dirs) == 1 and root_dirs[0] != '.':
+            # Use the directory name if there's only one non-current directory
+            base_name = os.path.basename(os.path.normpath(root_dirs[0]))
+            output_filename = f"{base_name}.ctree"
+        else:
+            # Otherwise use the default filename from config
+            output_filename = default_filename
+        
+        # Create the full output path
+        output_path = os.path.join(output_dir, output_filename)
+        
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(tree)
+            print(f"Tree saved to {output_path}", file=sys.stderr)
+        except Exception as e:
+            print(f"Error writing to file {output_path}: {e}", file=sys.stderr)
+            # Still print to stdout as fallback
+            print(tree)
+    else:
+        # Just print to stdout for tree-only output
+        print(tree)
 
 if __name__ == '__main__':
     main()

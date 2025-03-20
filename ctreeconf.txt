@@ -5,9 +5,13 @@
 2 = tsx, ts, json
 3 = tsx, ts, prisma, json, js, py
 4 = prisma, json, js, md, mjs
-5 = js
+5 = py, md
 6 = txt, md
-7 = txt, sh
+7 = txt, sh, md, py
 8 = py
 9 = ts, tsx, py
 10 = txt, md
+
+[settings]
+default_filename = .ctree
+

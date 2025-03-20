@@ -1,3 +1,5 @@
+# FFW's .gitignore
+
 webpack/
 public/
 package-lock.json
